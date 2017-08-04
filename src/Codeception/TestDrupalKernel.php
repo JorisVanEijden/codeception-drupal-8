@@ -1,37 +1,38 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dustinleblanc
- * Date: 6/9/16
- * Time: 7:52 AM
- */
 
 namespace Codeception;
 
-use Drupal\Core\DependencyInjection\Container;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Site\Settings;
 
+/**
+ * Class TestDrupalKernel
+ * @package Codeception
+ */
 class TestDrupalKernel extends DrupalKernel
 {
 
     /**
-     * TestDrupalKernel constructor.
+     * Boot up drupal.
+     *
+     * @param string $site_path
+     *   The site path.
+     *
+     * @throws \LogicException
      */
-    public function __construct($env, $class_loader, $root)
+    public function bootTestEnvironment($site_path)
     {
-        $this->root = $root;
-        parent::__construct($env, $class_loader);
-
+        if (!$this->prepared) {
+            static::bootEnvironment($this->root);
+            $this->setSitePath($site_path);
+            Settings::initialize($this->root, $site_path, $this->classLoader);
+            $this->boot();
+            $this->loadLegacyIncludes();
+            // Load all enabled modules.
+            $this->container->get('module_handler')->loadAll();
+            // Register stream wrappers.
+            $this->container->get('stream_wrapper_manager')->register();
+            $this->prepared = true;
+        }
     }
-
-    public function bootTestEnvironment($sitePath)
-    {
-        static::bootEnvironment();
-        $this->setSitePath($sitePath);
-        $this->loadLegacyIncludes();
-        Settings::initialize($this->root, $sitePath, $this->classLoader);
-        $this->boot();
-    }
-
 }
