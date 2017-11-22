@@ -4,6 +4,8 @@ namespace Codeception;
 
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Site\Settings;
+use Symfony\Component\HttpFoundation\Request;
+
 
 /**
  * Class TestDrupalKernel
@@ -26,13 +28,10 @@ class TestDrupalKernel extends DrupalKernel
             static::bootEnvironment($this->root);
             $this->setSitePath($site_path);
             Settings::initialize($this->root, $site_path, $this->classLoader);
-            $this->boot();
-            $this->loadLegacyIncludes();
-            // Load all enabled modules.
-            $this->container->get('module_handler')->loadAll();
-            // Register stream wrappers.
-            $this->container->get('stream_wrapper_manager')->register();
-            $this->prepared = true;
+            // DrupalKernel::boot() is not sufficient as it does not invoke preHandle(),
+            // which is required to initialize legacy global variables.
+            $request = Request::create('/');
+            $this->prepareLegacyRequest($request);
         }
     }
 }
