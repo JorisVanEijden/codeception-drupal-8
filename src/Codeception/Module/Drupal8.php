@@ -6,9 +6,13 @@ use Codeception\Configuration;
 use Codeception\Lib\ModuleContainer;
 use Codeception\Module;
 use Codeception\TestDrupalKernel;
+use Codeception\TestInterface;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\PhpStorage\PhpStorageFactory;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class Drupal8Module
@@ -30,6 +34,9 @@ class Drupal8 extends Module
 
     /**
      * Drupal8Module constructor.
+     *
+     * @param ModuleContainer $container
+     * @param null $config
      */
     public function __construct(ModuleContainer $container, $config = null)
     {
@@ -68,7 +75,37 @@ class Drupal8 extends Module
     }
 
     /**
+     * Create a cleanly booted environemnt for every test.
+     *
+     * @param TestInterface $test
+     */
+    public function _before(TestInterface $test)
+    {
+        $app_root = realpath($this->config['app_root']);
+        $class_loader = require $app_root . '/autoload.php';
+        $kernel = new TestDrupalKernel($this->config['environment'], $class_loader, false, $app_root);
+        $kernel->setSitePath($this->config['site_path']);
+        $request = Request::create('/');
+        $kernel->prepareLegacyRequest($request);
+
+        $module_handler = \Drupal::moduleHandler();
+        // Flush all persistent caches.
+        $module_handler->invokeAll('cache_flush');
+        foreach (Cache::getBins() as $cache_backend) {
+            $cache_backend->deleteAll();
+        }
+
+        // Reset all static caches.
+        drupal_static_reset();
+
+        // Wipe the Twig PHP Storage cache.
+        PhpStorageFactory::get('twig')->deleteAll();
+    }
+
+    /**
      * Setup Test environment.
+     *
+     * @param array $settings
      */
     public function _beforeSuite($settings = [])
     {

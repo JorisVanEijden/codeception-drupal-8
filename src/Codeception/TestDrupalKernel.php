@@ -6,7 +6,6 @@ use Drupal\Core\DrupalKernel;
 use Drupal\Core\Site\Settings;
 use Symfony\Component\HttpFoundation\Request;
 
-
 /**
  * Class TestDrupalKernel
  * @package Codeception
