@@ -3,10 +3,11 @@
     "description": "Drupal 8 framework integration for Codeception",
     "type": "package",
     "require": {
-        "codeception/codeception": "^2.1"
+        "codeception/codeception": "^2.1",
+        "roave/security-advisories": "dev-master",
+        "symfony/http-foundation": "~3.2.8"
     },
     "require-dev": {
-        "codegyre/robo": "^0.7.2",
         "drupal/drupal": "^8.2"
     },
     "license": "GPL-2.0",
@@ -14,6 +15,10 @@
         {
             "name": "Dustin LeBlanc",
             "email": "dustin.m.leblanc@gmail.com"
+        },
+        {
+            "name": "Joris van Eijden",
+            "email": "joris.vaneijden@oneshoe.nl"
         }
     ],
     "minimum-stability": "stable",
