@@ -68,18 +68,21 @@ class Drupal8 extends Module
         $request = Request::create('/');
         $kernel->prepareLegacyRequest($request);
 
-        $module_handler = \Drupal::moduleHandler();
-        // Flush all persistent caches.
-        $module_handler->invokeAll('cache_flush');
-        foreach (Cache::getBins() as $cache_backend) {
-            $cache_backend->deleteAll();
+        // Clean up everything, slow but thorough.
+        if ($this->config['clear_caches']) {
+            $module_handler = \Drupal::moduleHandler();
+            // Flush all persistent caches.
+            $module_handler->invokeAll('cache_flush');
+            foreach (Cache::getBins() as $cache_backend) {
+                $cache_backend->deleteAll();
+            }
+
+            // Reset all static caches.
+            drupal_static_reset();
+
+            // Wipe the Twig PHP Storage cache.
+            PhpStorageFactory::get('twig')->deleteAll();
         }
-
-        // Reset all static caches.
-        drupal_static_reset();
-
-        // Wipe the Twig PHP Storage cache.
-        PhpStorageFactory::get('twig')->deleteAll();
     }
 
     /**
