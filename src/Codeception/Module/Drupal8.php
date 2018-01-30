@@ -9,9 +9,6 @@ use Codeception\TestDrupalKernel;
 use Codeception\TestInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\PhpStorage\PhpStorageFactory;
-use Drupal\user\Entity\Role;
-use Drupal\user\Entity\User;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -33,6 +30,7 @@ class Drupal8 extends Module
                 'environment' => 'test',
                 'app_root' => Configuration::projectDir() . 'web',
                 'site_path' => 'sites/default',
+                'clear_caches' => false,
             ],
             (array)$config
         );
